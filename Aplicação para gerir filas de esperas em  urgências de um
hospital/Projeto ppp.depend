@@ -1,0 +1,294 @@
+# depslib dependency file v1.0
+1430426742 source:c:\users\bay\desktop\c\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1432918501 s.c"
+
+1429618336 source:c:\users\bay\desktop\c\projeto ppp\adiciona doentes a lista.c
+	<stdio.h>
+	<stdlib.h>
+
+1429888492 
+
+1430427392 source:c:\users\bay\desktop\c\projeto ppp\estruturas.c
+
+1429888492 source:c:\users\bay\desktop\c\projeto ppp\funçoes auxiliares.c
+	<stdlib.h>
+	<time.h>
+
+1430440261 source:c:\users\bay\desktop\c\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1430427392 c:\users\bay\desktop\c\projeto ppp\estruturas.c
+
+1430230773 source:c:\users\bay\desktop\c\projeto ppp\admitie_doente.c
+
+1430441290 source:c:\users\bay\desktop\c\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1430511385 source:c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\estruturas.c
+
+1430766404 source:c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1430511385 c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\estruturas.c
+
+1430620947 source:c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1430673977 source:c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1430620947 source:c:\users\utilizador\desktop\nova pasta (2)\projeto ppp\data e hora.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1430730621 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\data e hora.c
+
+1432292230 c:\users\bay\desktop\nova pasta (3)\projeto ppp\estruturas.c
+
+1432292230 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\estruturas.c
+
+1432310913 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.c"
+
+1430825466 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432399580 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1432399580 source:c:\users\bay\desktop\nova pasta (3)\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432505066 source:c:\users\utilizador\desktop\sss\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432481189 c:\users\utilizador\desktop\sss\projeto ppp\estruturas.c
+
+1432481189 source:c:\users\utilizador\desktop\sss\projeto ppp\estruturas.c
+
+1432482075 source:c:\users\utilizador\desktop\sss\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.c"
+
+1430821868 source:c:\users\utilizador\desktop\sss\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432482573 source:c:\users\utilizador\desktop\sss\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1432481189 source:c:\users\utilizador\desktop\sss\projeto ppp\untitled1.c
+	<stdio.h>
+	<stdlib.h>
+	"header.h"
+
+1432911089 source:c:\users\bay\desktop\ssss\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432918336 c:\users\bay\desktop\ssss\projeto ppp\estruturas.c
+
+1432918336 source:c:\users\bay\desktop\ssss\projeto ppp\estruturas.c
+
+1432918336 source:c:\users\bay\desktop\ssss\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.c"
+
+1432915509 source:c:\users\bay\desktop\ssss\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.c"
+
+1432911141 source:c:\users\bay\desktop\ssss\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.c"
+
+1432654904 source:c:\users\bay\desktop\ssss\projeto ppp\untitled1.c
+	<stdio.h>
+	<stdlib.h>
+	"header.h"
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"header.h"
+
+1432918501 source:c:\users\bay\desktop\ssss\projeto ppp\ficheiros.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"Estruturas.c"
+
+1433256290 source:c:\users\utilizador\desktop\grifo\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433277000 s.h"
+
+1432948812 c:\users\utilizador\desktop\grifo\projeto ppp\estruturas.c
+
+1432948812 source:c:\users\utilizador\desktop\grifo\projeto ppp\estruturas.c
+
+1433207569 source:c:\users\utilizador\desktop\grifo\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.h"
+
+1433256304 source:c:\users\utilizador\desktop\grifo\projeto ppp\ficheiros.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"Estruturas.h"
+
+1433176471 source:c:\users\utilizador\desktop\grifo\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433256837 source:c:\users\utilizador\desktop\grifo\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.h"
+
+1433177768 c:\users\utilizador\desktop\grifo\projeto ppp\estruturas.h
+
+1433260821 source:c:\users\grifo\desktop\oifnroifnr\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433257224 c:\users\grifo\desktop\oifnroifnr\projeto ppp\estruturas.h
+
+1433256304 source:c:\users\grifo\desktop\oifnroifnr\projeto ppp\ficheiros.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"Estruturas.h"
+
+1433207569 source:c:\users\grifo\desktop\oifnroifnr\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.h"
+
+1433176471 source:c:\users\grifo\desktop\oifnroifnr\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433260704 source:c:\users\grifo\desktop\oifnroifnr\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.h"
+
+1433277000 source:c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\atribuições.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433277348 c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\estruturas.h
+
+1433277000 source:c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\ficheiros.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"Estruturas.h"
+
+1433277000 source:c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\funçoes 1.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<ctype.h>
+	"Estruturas.h"
+
+1433277000 source:c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1433277000 source:c:\users\utilizador\desktop\nova pasta (2)\nova pasta\projeto ppp\menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.h"
+
+1433277000 source:/home/renato/Desktop/Projeto ppp/Ficheiros.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"Estruturas.h"
+
+1479073646 /home/renato/Desktop/Projeto ppp/Estruturas.h
+
+1433279093 source:/home/renato/Desktop/Projeto ppp/main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Estruturas.h"
+
+1479073651 source:/home/renato/Desktop/Projeto ppp/menu.c
+	<stdio.h>
+	<stdlib.h>
+	"Estruturas.h"
+

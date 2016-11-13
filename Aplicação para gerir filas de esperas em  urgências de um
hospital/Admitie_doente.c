@@ -1,0 +1,4 @@
+void Admitir_doente()
+{
+
+}
