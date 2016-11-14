@@ -10,11 +10,11 @@
 - Criação da memória partilhada -> Done
 - Criação da pool de threads -> Done
 
-- Criação do named pipe ->  DONE
-- Leitura correcta dos comandos recebidos pelo named pipe -> DONE
-- Aplicação das configurações recebidas pelo named pipe ->  DONE 80 %
+- Criação do named pipe -> NOT DONE
+- Leitura correcta dos comandos recebidos pelo named pipe -> NOT DONE
+- Aplicação das configurações recebidas pelo named pipe -> NOT DONE
 - Suporte do scheduler e política de escalonamento -> NOT DONE
-- Suporte de concorrência no tratamento de pedidos -> DONE
+- Suporte de concorrência no tratamento de pedidos -> NOT DONE
 
 - Leitura correcta dos pedidos feitos por HTTP e a sua colocação no buffer de pedidos -> Done need to see again
 - Resposta a pedidos de páginas estáticas -> Done isto já não vinha feito?
