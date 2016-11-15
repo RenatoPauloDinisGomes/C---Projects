@@ -134,4 +134,5 @@ void *create_named_pipe();
 void * worker();
 void *scheduler_handler();
 void reorganize_buffer();
+int get_file_type(int index_in_buffer);
 

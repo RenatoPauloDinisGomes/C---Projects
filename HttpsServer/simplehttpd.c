@@ -5,33 +5,37 @@
 * Sistemas Operativos 2016/2017xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 */
 /*
-- Arranque do servidor e aplicação das configurações existentes no ficheiro “config.txt” -> Done
-- Criação de todos os processo filho necessários -> Done
-- Criação da memória partilhada -> Done
-- Criação da pool de threads -> Done
++ Arranque do servidor e aplicação das configurações existentes no ficheiro “config.txt” -> Done
++ Criação de todos os processo filho necessários -> Done
++ Criação da memória partilhada -> Done
++ Criação da pool de threads -> Done
 
-- Criação do named pipe -> NOT DONE
-- Leitura correcta dos comandos recebidos pelo named pipe -> NOT DONE
-- Aplicação das configurações recebidas pelo named pipe -> NOT DONE
-- Suporte do scheduler e política de escalonamento -> NOT DONE
-- Suporte de concorrência no tratamento de pedidos -> NOT DONE
++ Criação do named pipe -> Done
++ Leitura correcta dos comandos recebidos pelo named pipe -> Done
++ Aplicação das configurações recebidas pelo named pipe -> Done
 
-- Leitura correcta dos pedidos feitos por HTTP e a sua colocação no buffer de pedidos -> Done need to see again
-- Resposta a pedidos de páginas estáticas -> Done isto já não vinha feito?
+- Suporte do scheduler e política de escalonamento -> NOT DONE ? que ito ? 
+- Suporte de concorrência no tratamento de pedidos -> NOT DONE ? que ito ? 
 
-- Resposta a ficheiros comprimidos (extensão .gz) -> NOT DONE
-- Sincronização com mecanismos adequados (semáforos, mutexes ou variáveis de condição) -> NOT DONE
-- Prevenir interrupções indesejada por sinais e fornecer a resposta adequada aos vários sinais -> NOT DONE
++ Leitura correcta dos pedidos feitos por HTTP e a sua colocação no buffer de pedidos -> Done 
++ Resposta a pedidos de páginas estáticas -> Done 
+
++- Resposta a ficheiros comprimidos (extensão .gz) -> Done
++- Sincronização com mecanismos adequados (semáforos, mutexes ou variáveis de condição) -> Done need to see again 
++- Prevenir interrupções indesejada por sinais e fornecer a resposta adequada aos vários sinais -> Done 40 % 
+
 - Utilização da memória partilhada -> NOT DONE
-- Ler comandos do utilizador -> NOT DONE
-- Enviar comandos através do named pipe -> NOT DONE
+
++ Ler comandos do utilizador -> Done
++ Enviar comandos através do named pipe -> Done
+
 - Ler informação da memória partilhada -> NOT DONE
 - Escrever a informação estatística no ficheiro mapeado em memória (“server.log”) -> NOT DONE
 - Enviar informação agregada para o écran -> NOT DONE
 - Fazer reset a estatísticas agregadas -> NOT DONE
 
-- Deteção e tratamento de erros -> Done 75 %
-- Terminação dos processos filho quando o processo principal termina. Libertação de recursos e limpeza ao terminar a aplicação. -> Done
++ Deteção e tratamento de erros -> Done 
++ Terminação dos processos filho quando o processo principal termina. Libertação de recursos e limpeza ao terminar a aplicação. -> Done
 
 */
 #include "headers.h"
@@ -85,6 +89,7 @@ void server_stats()
 	Statistics->average_time_content=0;
 	Statistics->average_time_compressed_content=0;
 }
+
 int isAllowed(char* file)
 {
 
@@ -187,16 +192,13 @@ void *create_named_pipe()
 }
 void catch_ctrlz()
 {
-    //printf("Entry time %s",ctime(&buffer_of_requests->list_requests[buffer_of_requests->end_request].entry_time));
-    //int  attended, socket, port, id, type;
-    //char file_name[SIZE_BUF],ip_str[INET6_ADDRSTRLEN],buf_aux[SIZE_BUF],buf_temp[SIZE_BUF];
 	int i;
 	char attended[4];
 	printf("\n\\------Requests list------/\n");
 	for(i=0; i<buffer_of_requests->end_request; i++)
 	{
 		buffer_of_requests->list_requests[i].attended ? strcpy(attended,"yes") : strcpy(attended,"no");
-		printf("Request nº %d\nSocket - %d\nPort - %d\nId - %d\nFile name - %s\nAttended - %s\nEntry time - %s\n",i+1,buffer_of_requests->list_requests[i].socket,buffer_of_requests->list_requests[i].port,buffer_of_requests->list_requests[i].id,buffer_of_requests->list_requests[i].file_name,attended,ctime(&buffer_of_requests->list_requests[i].entry_time));
+		printf("Request nº %d\nSocket - %d\nPort - %d\nId - %d\nFile name - %s\nAttended - %s\nEntry time - %s\nType - %d\n",i+1,buffer_of_requests->list_requests[i].socket,buffer_of_requests->list_requests[i].port,buffer_of_requests->list_requests[i].id,buffer_of_requests->list_requests[i].file_name,attended,ctime(&buffer_of_requests->list_requests[i].entry_time),buffer_of_requests->list_requests[i].type);
 	}
 	printf("\\-----------end-----------/\n");
 }
@@ -223,14 +225,13 @@ void start_server()
 		}
 		buffer_of_requests->list_requests[buffer_of_requests->end_request].socket = new_conn;
 		time(&buffer_of_requests->list_requests[buffer_of_requests->end_request].entry_time);
-		printf("Entry time %s",ctime(&buffer_of_requests->list_requests[buffer_of_requests->end_request].entry_time));
+		printf("\nEntry time %s",ctime(&buffer_of_requests->list_requests[buffer_of_requests->end_request].entry_time));
 		Statistics->total_requests++;
 		changing_policy ? buffer_of_requests->temp_current_requests++ : buffer_of_requests->current_requests++;
 		buffer_of_requests->list_requests[buffer_of_requests->end_request].id = Statistics->total_requests;
 		if(Statistics->total_requests<=MAX_REQUESTS)
 		{
-			printf("Request number %d is gonna be put now in the buffer",buffer_of_requests->list_requests[buffer_of_requests->end_request].id);
-			printf("\n\n");
+
 			pthread_mutex_lock(&variables_mutex);
 			int index = buffer_of_requests->end_request;
 			buffer_of_requests->end_request++;
@@ -352,11 +353,28 @@ void handle_response(int index)
 {
 	pthread_mutex_unlock(&variables_mutex);
     // Verify if request is for a page or script
-	if(!strncmp(buffer_of_requests->list_requests[index].file_name,CGI_EXPR,strlen(CGI_EXPR)))
-		execute_script(index);
-	else
-        // Search file with html page and send to client
+	switch(buffer_of_requests->list_requests[index].type){
+		case 0:
 		send_page(index);
+		break;
+		case 1:
+		send_page(index);
+		break;
+		case 2:
+		execute_script(index);
+		break;
+		default:
+		printf("Kappa\n");
+	}
+	/*
+	if(buffer_of_requests->list_requests[index].type==)
+		if(!strncmp(buffer_of_requests->list_requests[index].file_name,CGI_EXPR,strlen(CGI_EXPR)))
+			execute_script(index);
+		else
+        // Search file with html page and send to client
+			send_page(index);
+			*/
+
     // Terminate connection with client
 	buffer_of_requests->list_requests[index].attended=1;
 	printf("Attended with policy %s\n",Configurations->policy);
@@ -429,18 +447,28 @@ void get_request(int index_in_buffer)
     // If no particular page is requested then we consider htdocs/index.html
 	if(!strlen(buffer_of_requests->list_requests[index_in_buffer].file_name))
 		sprintf(buffer_of_requests->list_requests[index_in_buffer].file_name,"404.shtml");
-	if(!strncmp(buffer_of_requests->list_requests[index_in_buffer].file_name,CGI_EXPR,strlen(CGI_EXPR)))
-		buffer_of_requests->list_requests[index_in_buffer].type=1;
-	else
-        // Search file with html page and send to client
-		buffer_of_requests->list_requests[index_in_buffer].type=2;
+
+	// get file type of the request 
+	buffer_of_requests->list_requests[index_in_buffer].type=get_file_type(index_in_buffer);
+
 #if DEBUG
 	printf("get_request: client requested the following page: %s\n",buffer_of_requests->list_requests[index_in_buffer].file_name);
 #endif
 
 	return;
 }
-
+//see if file is static or not 1 - static 2- compressed 0 - no one
+int get_file_type(int index_in_buffer){
+	if(strstr(buffer_of_requests->list_requests[index_in_buffer].file_name,".html") != NULL){
+		printf("File type Static\n");
+		return 1;
+	}else if(strstr(buffer_of_requests->list_requests[index_in_buffer].file_name,".gz") != NULL){
+		printf("File type Compressed\n");
+		return 2;
+	}else{
+		return 0;
+	}
+}
 // Send message header (before html page) to client
 void send_header(int index_in_buffer)
 {
@@ -459,7 +487,26 @@ void send_header(int index_in_buffer)
 // Execute script in /cgi-bin
 void execute_script(int index_in_buffer)
 {
-    // Currently unsupported, return error code to client
+	FILE *fp;
+	if((fp=popen(buffer_of_requests->list_requests[index_in_buffer].file_name,"r"))==NULL)
+	{
+        // Page not found, send error to client
+		printf("send_page: page %s not found, alerting client\n",buffer_of_requests->list_requests[index_in_buffer].file_name);
+		not_found(index_in_buffer);
+	}else{
+		printf("File %s found\n", buffer_of_requests->list_requests[index_in_buffer].file_name);
+		char *cmd;
+		cmd="";
+		strcpy(cmd,"gzip -d htdocs/");
+		strcat(cmd,buffer_of_requests->list_requests[index_in_buffer].file_name);
+		system(cmd);
+		//remove extencion
+		strtok(buffer_of_requests->list_requests[index_in_buffer].file_name,".");
+		printf("New File name -> %s\n", buffer_of_requests->list_requests[index_in_buffer].file_name);
+		send_page(index_in_buffer);
+	}
+
+
 	cannot_execute(index_in_buffer);
 	close(buffer_of_requests->list_requests[index_in_buffer].socket);
 	return;
@@ -478,7 +525,7 @@ void send_page(int index_in_buffer)
 	{
         // Page not found, send error to client
 		printf("send_page: page %s not found, alerting client\n",buffer_of_requests->list_requests[index_in_buffer].buf_temp);
-		not_found(buffer_of_requests->list_requests[index_in_buffer].socket);
+		not_found(index_in_buffer);
 	}
 	else
 	{
@@ -538,7 +585,7 @@ int read_line(int index_in_buffer,int n)
 }
 void reorganize_buffer()
 {
-	printf("%s\n",Configurations->policy);
+	printf(" %s\n",Configurations->policy);
 
     //bubble sort
 	int  n, c, d;
@@ -547,7 +594,6 @@ void reorganize_buffer()
 
 	if(strcmp(Configurations->policy,"NORMAL")==0)
 	{
-		printf("1\n");
 		n = buffer_of_requests->end_request;
 		for (c = 0 ; c < ( n - 1 ); c++)
 		{
@@ -564,6 +610,14 @@ void reorganize_buffer()
 	}
 	else if(strcmp(Configurations->policy,"STATIC")==0)
 	{
+		int i;
+		for(i=0;i<buffer_of_requests->end_request-1;i++){
+
+
+
+		}
+
+
 
 	}
 	else if(strcmp(Configurations->policy,"COMPRESSED")==0)

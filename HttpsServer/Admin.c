@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
-
+#include <cstdlib>
 #define PIPE_NAME   "np_client_server"
 
 typedef struct
@@ -20,6 +20,7 @@ void print_menu();
 int get_char();
 int main()
 {
+
     command cmd;
     char files[1024];
     int option,flag,option_2,thread_size;
