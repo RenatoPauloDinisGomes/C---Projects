@@ -13,10 +13,11 @@
 #include <string.h>
 #include <signal.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#include <semaphore.h>
+
 // Produce debug information
 #define DEBUG	  	1
 
@@ -33,34 +34,34 @@
 #define MAX_REQUESTS 100
 #define MAX_FILES 10
 #define PIPE_NAME "np_client_server"
-
+#define STATS_FILE_NAME "server.log"
 /* structs */
 typedef struct server_configs * Configs;
 struct server_configs
 {
-    int server_port, thread_pool_size;
-    char policy[SIZE_NAME];
-    char allowed[MAX_FILES][SIZE_NAME];
+  int server_port, thread_pool_size;
+  char policy[SIZE_NAME];
+  char allowed[MAX_FILES][SIZE_NAME];
 };
 
 typedef struct
 {
-    int cmd,thread_size,policy;
-    char str_1[1024];
+  int cmd,thread_size,policy;
+  char str_1[1024];
 } command;
 
 typedef struct stats* Stats;
 struct stats
 {
-    int number_static_pages, number_compressed_files, total_requests;
-    float average_time_content, average_time_compressed_content;
+  int request_type, duration;
+  char file_name[SIZE_BUF],handled[SIZE_BUF],arrival[SIZE_BUF];
 };
 
 typedef struct request* requests;
 
 struct request
 {
-    time_t entry_time;
+  time_t entry_time;
     /*struct tm {
        int tm_sec;          seconds,  range 0 to 59
        int tm_min;          minutes, range 0 to 59
@@ -72,23 +73,20 @@ struct request
        int tm_yday;         day in the year, range 0 to 365
        int tm_isdst;        daylight saving time
     };*/
-
-    int  attended, socket, port, id, type;
-    char file_name[SIZE_BUF],ip_str[INET6_ADDRSTRLEN],buf_aux[SIZE_BUF],buf_temp[SIZE_BUF];
+  int  attended, socket, port, id, type;
+  char file_name[SIZE_BUF],ip_str[INET6_ADDRSTRLEN],buf_aux[SIZE_BUF],buf_temp[SIZE_BUF];
 };
 
 typedef struct buffer * Buffer;
 struct buffer
 {
-    int present_request,end_request,current_requests,end_temp_policy,temp_current_requests;
-    requests list_requests;
+  int present_request,end_request,current_requests,end_temp_policy,temp_current_requests;
+  requests list_requests;
 };
-
-
 
 /* Variables */
 
-int port, socket_conn, new_conn, shared_memory_id, changing_policy=0;
+int port, socket_conn,process_maker, new_conn, shared_memory_id, changing_policy=0,total_requests=0;
 
 //struct to save Configurations
 Configs Configurations;
@@ -103,8 +101,8 @@ pthread_t scheduler_thread,pipe_thread;
 sem_t sem_threads;
 // variable of condition
 pthread_mutex_t handler_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t variables_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t changing_policy_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_buffer = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t full = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t threads_cond_var = PTHREAD_COND_INITIALIZER;
 
 
@@ -119,6 +117,7 @@ void send_page(int socket);
 void execute_script(int socket);
 void not_found(int socket);
 void catch_ctrlc(int);
+void catch_ctrlz();
 void cannot_execute(int socket);
 void Load_Configs();
 void print_Configs();
@@ -135,4 +134,7 @@ void * worker();
 void *scheduler_handler();
 void reorganize_buffer();
 int get_file_type(int index_in_buffer);
-
+void close_stats();
+void stats_reset();
+void print_stats();
+void run_stats();
