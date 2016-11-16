@@ -14,25 +14,26 @@
 + Leitura correcta dos comandos recebidos pelo named pipe -> Done
 + Aplicação das configurações recebidas pelo named pipe -> Done
 
-- Suporte do scheduler e política de escalonamento -> NOT DONE ? que ito ?
++ Suporte do scheduler e política de escalonamento -> NOT DONE ? que ito ?
 - Suporte de concorrência no tratamento de pedidos -> NOT DONE ? que ito ?
 
 + Leitura correcta dos pedidos feitos por HTTP e a sua colocação no buffer de pedidos -> Done
 + Resposta a pedidos de páginas estáticas -> Done
 
-+- Resposta a ficheiros comprimidos (extensão .gz) -> Done
-+- Sincronização com mecanismos adequados (semáforos, mutexes ou variáveis de condição) -> Done need to see again
-+- Prevenir interrupções indesejada por sinais e fornecer a resposta adequada aos vários sinais -> Done 40 %
++ Resposta a ficheiros comprimidos (extensão .gz) -> Done
 
-- Utilização da memória partilhada -> NOT DONE
++- Sincronização com mecanismos adequados (semáforos, mutexes ou variáveis de condição) -> Done need to see again
++- Prevenir interrupções indesejada por sinais e fornecer a resposta adequada aos vários sinais -> Done 80 %
+
++ Utilização da memória partilhada -> Done
 
 + Ler comandos do utilizador -> Done
 + Enviar comandos através do named pipe -> Done
 
-- Ler informação da memória partilhada -> NOT DONE
-- Escrever a informação estatística no ficheiro mapeado em memória (“server.log”) -> NOT DONE
-- Enviar informação agregada para o écran -> NOT DONE
-- Fazer reset a estatísticas agregadas -> NOT DONE
++ Ler informação da memória partilhada -> Done
++ Escrever a informação estatística no ficheiro mapeado em memória (“server.log”) -> Done
++ Enviar informação agregada para o écran -> Done
++ Fazer reset a estatísticas agregadas -> Done
 
 + Deteção e tratamento de erros -> Done
 + Terminação dos processos filho quando o processo principal termina. Libertação de recursos e limpeza ao terminar a aplicação. -> Done
@@ -83,8 +84,6 @@ int main(int argc, char ** argv)
         //pthread_join(pipe_thread, NULL);
     }
 }
-
-
 int isAllowed(char* file)
 {
 
@@ -123,32 +122,26 @@ void *create_named_pipe()
         printf("Received: %d + thread_size %d + policy %d + files allowed: %s\n", cmd.cmd,cmd.thread_size,cmd.policy,cmd.str_1);
         switch(cmd.cmd)
         {
-        case 1:
+            case 1:
+            printf("Buffer reorganizing.... \n");
             changing_policy=1;
             switch(cmd.policy)
             {
-            case 1:
-                strcpy(Configurations->policy,"NORMAL");
-                reorganize_buffer();
-                break;
-            case 2:
-                strcpy(Configurations->policy,"STATIC");
-                reorganize_buffer();
-                break;
-            case 3:
-                strcpy(Configurations->policy,"COMPRESSED");
-                reorganize_buffer();
-                break;
+                case 1: strcpy(Configurations->policy,"NORMAL"); break;
+                case 2: strcpy(Configurations->policy,"STATIC"); break;
+                case 3: strcpy(Configurations->policy,"COMPRESSED"); break;
             }
+            reorganize_buffer(); 
+
+            printf("Buffer is organized \n");
             break;
-        case 2:
+            case 2:
             if(Configurations->thread_pool_size<cmd.thread_size)
             {
                 //aumentar
                 threads = realloc(threads,cmd.thread_size*sizeof(pthread_t));
                 for(i=Configurations->thread_pool_size; i<cmd.thread_size; i++)
                     pthread_create(&threads[i],NULL,worker,NULL);
-
                 Configurations->thread_pool_size=cmd.thread_size;
             }
             else if(Configurations->thread_pool_size>cmd.thread_size)
@@ -156,19 +149,15 @@ void *create_named_pipe()
                 //reduzir
                 for(i=cmd.thread_size ; i<Configurations->thread_pool_size ; i++)
                     pthread_kill(threads[i], SIGUSR1);
-
-                //	threads = malloc((Configurations->thread_pool_size)*sizeof(pthread_t));
                 Configurations->thread_pool_size=cmd.thread_size;
                 threads = realloc(threads,Configurations->thread_pool_size*sizeof(pthread_t));
             }
             else
-            {
                 printf("No need to do anything to thread pool size\n");
-            }
+
             printf("Thread pool have now %d threads\n",Configurations->thread_pool_size);
-            //Configurations->thread_pool_size=cmd.thread_size;
             break;
-        case 3:
+            case 3:
             i=0;
             pch = strtok (cmd.str_1,";");
             while (pch != NULL)
@@ -180,7 +169,7 @@ void *create_named_pipe()
             //printf("Not done \n");
             print_Configs();
             break;
-        default:
+            default:
             printf("Invalid command\n");
         }
     }
@@ -202,8 +191,6 @@ void start_server()
     struct sockaddr_in client_name;
     socklen_t client_name_len = sizeof(client_name);
     int port;
-
-
 
     port=Configurations->server_port;
     printf("Listening for HTTP requests on port %d\n",port);
@@ -236,9 +223,7 @@ void start_server()
             pthread_cond_signal(&threads_cond_var);
         }
         else
-        {
             printf("This server can only answer %d",MAX_REQUESTS);
-        }
     }
 }
 void clean_scheduler_handler()
@@ -254,9 +239,7 @@ void *scheduler_handler()
     {
         pthread_mutex_lock(&handler_mutex);
         while(buffer_of_requests->current_requests==0)
-        {
             pthread_cond_wait(&threads_cond_var,&handler_mutex);
-        }
         pthread_mutex_unlock(&handler_mutex);
         if(buffer_of_requests->current_requests<Configurations->thread_pool_size && !changing_policy)
         {
@@ -282,17 +265,7 @@ void *scheduler_handler()
 int bigger_date(time_t date_1,time_t date_2)
 {
     double seconds = difftime(date_1, date_2);
-    if (seconds > 0)
-    {
-        printf("Date_1 > Date_2\n");
-        return 1;
-    }
-    else
-    {
-        printf("Date_2 > Date_1\n");
-        return 0;
-    }
-    return 0;
+    seconds > 0 ? return 1 : return 0;
 }
 
 // Identifies client (address and port) from socket
@@ -360,36 +333,26 @@ void handle_response(int index)
 
 
     // Verify if request is for a page or script
-    switch(buffer_of_requests->list_requests[index].type)
-    {
-    case 0:
-        send_page(index);
-        break;
-    case 1:
-        send_page(index);
-        break;
-    case 2:
-        execute_script(index);
-        break;
-    default:
-        printf("Kappa\n");
-    }
+    buffer_of_requests->list_requests[index].type==2 ? execute_script(index): send_page(index);
 
+    //stats
+    sem_wait(&mutex_stats);
     st_m= (struct stats *) shmat(shared_memory_id,NULL,0);
     strcpy(st_m->arrival,ctime(&buffer_of_requests->list_requests[index].entry_time));
+    sleep(2);
     time(&t_m);
     strcpy(st_m->handled,ctime(&t_m));
     strcpy(st_m->file_name,buffer_of_requests->list_requests[index].file_name);
     st_m->request_type= buffer_of_requests->list_requests[index].type;
     st_m->duration=30;
     shmdt(Statistics);
+    sem_post(&mutex_stats);
 
-
+    //send signal to update file with new entry
     kill(process_maker,SIGUSR1);
     // Terminate connection with client
     buffer_of_requests->list_requests[index].attended=1;
     printf("Attended with policy %s\n",Configurations->policy);
-
 }
 void Load_Configs()
 {
@@ -424,9 +387,8 @@ void print_Configs()
     printf("THREAD POOL SIZE : %i\n", Configurations->thread_pool_size);
     printf("EXTENSIONS ALLOWED :");
     while(strcmp(Configurations->allowed[i],"eof")!=0)
-    {
         printf(" %s", Configurations->allowed[i++]);
-    }
+
     printf("\\-------------------------/\n\n");
 }
 // Processes request from client
@@ -461,11 +423,9 @@ void get_request(int index_in_buffer)
 
     // get file type of the request
     buffer_of_requests->list_requests[index_in_buffer].type = get_file_type(index_in_buffer);
-
 #if DEBUG
     printf("get_request: client requested the following page: %s\n",buffer_of_requests->list_requests[index_in_buffer].file_name);
 #endif
-
     return;
 }
 //see if file is static or not 1 - static 2- compressed 0 - no one
@@ -504,15 +464,12 @@ void send_header(int index_in_buffer)
 // Execute script in /cgi-bin
 void execute_script(int index_in_buffer)
 {
-
-    printf("File %s found\n", buffer_of_requests->list_requests[index_in_buffer].file_name);
     char cmd[SIZE_BUF];
     strcpy(cmd,"gzip -d htdocs/");
     strcat(cmd,buffer_of_requests->list_requests[index_in_buffer].file_name);
     system(cmd);
     //remove extencion
     strtok(buffer_of_requests->list_requests[index_in_buffer].file_name,".");
-    printf("New File name -> %s\n", buffer_of_requests->list_requests[index_in_buffer].file_name);
     send_page(index_in_buffer);
 
     return;
@@ -596,8 +553,6 @@ void reorganize_buffer()
     int  n, c, d;
     struct request swap;
 
-    printf("Buffer reorganizing.... \n");
-
     if(strcmp(Configurations->policy,"NORMAL")==0)
     {
         n = buffer_of_requests->end_request;
@@ -669,8 +624,6 @@ void reorganize_buffer()
     {
         printf("Policy ?\n");
     }
-
-    printf("Buffer is organized \n");
 }
 void create_thread_pool()
 {
@@ -759,6 +712,7 @@ void terminate_threads()
 {
     int i;
     pthread_kill(scheduler_thread,SIGUSR2);
+    pthread_kill(pipe_thread, SIGUSR2);
     for(i=0; i<Configurations->thread_pool_size; i++)
         pthread_kill(threads[i], SIGUSR1);
 }
@@ -767,60 +721,79 @@ void catch_ctrlc(int sig)
 {
     //terminate_threads
     terminate_threads();
-    //pthread_kill(pipe_thread, SIGUSR2);
+
 
     printf("\nThreads termidated\n");
 
     //terminate thread mutex
-
     if(pthread_mutex_destroy(&mutex_buffer) == 0)
         printf("MUTEX SEMAPHORE REALEASED 1\n");
     else
         printf("PROBLEM ON MUTEX SEMAPHORE REALEASE 1\n");
-    //need to unlock cause was locked to be destroyed
+
+
     pthread_mutex_unlock(&handler_mutex);
     if(pthread_mutex_destroy(&handler_mutex) == 0)
         printf("MUTEX SEMAPHORE REALEASED 2\n");
     else
         printf("PROBLEM ON MUTEX SEMAPHORE REALEASE 2\n");
 
-
-
     //destroy condition variable
     pthread_cond_destroy(&threads_cond_var);
     printf("Condition variable destroyed\n");
 
-
     //clean shared memory
+    shmdt(&shared_memory_id);
     shmctl(shared_memory_id,IPC_RMID,NULL);
     printf("Shared memory cleaned\n");
 
-
-    printf("BUFFER_REQUESTS MEMORY REMOVED\n");
     //close socket
     if(close(socket_conn)==0)
-        printf("SOCKET CLOSED\n");
+        printf("Socket closed\n");
     else
         printf("PROBLEM ON SOCKET CLOSING\n");
     close(new_conn);
-//releases the semaphore
-    if(sem_destroy(&sem_threads) == 0)
-        printf("SEMAPHORE REALEASED\n");
+
+    //releases the semaphore
+    if(sem_destroy(&sem_threads) == 0 && sem_destroy(&mutex_stats) == 0 )
+        printf("Semaphore destroyed\n");
     else
         printf("ERROR ON SEMAPHORE REALEASE\n");
+
+
     //por causa dos prints
     sleep(1);
     kill(process_maker,SIGINT);
     //free structs
     free(threads);
-    printf("THREADS \"MEMORY\" REMOVED\n");
     free(Configurations);
-    printf("CONFIGURATIONS MEMORY REMOVED\n");
     free(buffer_of_requests->list_requests);
     free(buffer_of_requests);
+
     printf("SERVER TERMINATED\n");
     exit(0);
 }
+
+void create_semaphores()
+{
+    sem_init(&sem_threads,0,1);
+    sem_wait(&sem_threads);
+
+    sem_init(&mutex_stats,0,1);
+
+    //sem_wait(&mutex_stats);
+
+
+    //sem_getvalue(&sem_threads, &value);
+    //printf("valor %d\n",value);
+}
+
+//-------------------STATS FUNCTIONS---------------------------//
+int number_static_pages,
+number_compressed_files,
+average_time_content,
+average_time_compressed_content,num;
+
 void create_shared_variable()
 {
     if((shared_memory_id=shmget(IPC_PRIVATE,sizeof(struct stats),IPC_CREAT | 0777))<0)
@@ -829,23 +802,7 @@ void create_shared_variable()
         exit(1);
     }
     printf("shared_memory_id : %d\n", shared_memory_id);
-
 }
-void create_semaphores()
-{
-    sem_init(&sem_threads,0,1);
-    sem_wait(&sem_threads);
-
-    //sem_getvalue(&sem_threads, &value);
-    //printf("valor %d\n",value);
-}
-
-//-------------------STATS FUNCTIONS---------------------------//
-int number_static_pages,
-    number_compressed_files,
-    average_time_content,
-    average_time_compressed_content,num;
-
 void server_stats()
 {
     FILE *fp;
@@ -865,7 +822,7 @@ void server_stats()
     signal(SIGUSR2, stats_reset);
 
     time(&t_m);
-    fprintf(fp,"\nStart time %s\n", ctime(&t_m));
+    fprintf(fp,"Start time %s\n", ctime(&t_m));
     fclose(fp);
 
     while(1)
@@ -894,18 +851,20 @@ void close_stats()
     }
     time(&t_m);
     fprintf(fp, "----/-----/-----/-----/-----\n");
-    fprintf(fp, "Close time %s\n", ctime(&t_m));
+    fprintf(fp, "Close time %s", ctime(&t_m));
     fprintf(fp, "Number Compressed %d\n", number_compressed_files);
     fprintf(fp, "Number Static %d\n", number_static_pages);
     fprintf(fp, "----/-----/-----/-----/-----\n\n");
 
     print_stats();
-    printf("\nClose time %s\n", ctime(&t_m));
+    printf("\nStatistics Close time %s\n", ctime(&t_m));
     fclose(fp);
     exit(0);
 }
+
 void run_stats()
 {
+    sem_wait(&mutex_stats);
     FILE *fp;
 
     fp = fopen(STATS_FILE_NAME, "a");
@@ -917,35 +876,32 @@ void run_stats()
 
     switch(Statistics->request_type)
     {
-    case 0:
-        break;
-    case 1:
-        number_static_pages++;
-        average_time_content+= Statistics->duration;
-        break;
-    case 2:
+        case 2:
         number_compressed_files++;
         average_time_compressed_content+=Statistics->duration;
         break;
-
+        default:
+        number_static_pages++;
+        average_time_content+= Statistics->duration;
     }
+    printf("\n--------------------------------\n");
     printf("Statistics entry: %d\n",++num);
     printf("File name: %s\n",Statistics->file_name);
-    printf("Request Type (extension): %s\n",Statistics->request_type == 2 ? " .gz" : " .html");
+    printf("Request Type (extension):%s\n",Statistics->request_type == 2 ? " .gz" : " .html");
     printf("Duration %d miliseconds\n", Statistics->duration);
-
-    fprintf(fp, "How was handled: %s,Duration: %d,File_Name: %s,Request Type (extension): %sArrival time: %s\n",Statistics->handled,Statistics->duration,Statistics->file_name,Statistics->request_type == 2 ? " .gz" : " .html",Statistics->arrival);
+    printf("--------------------------------\n");
+    fprintf(fp, "Handled time: %s, Duration: %d, File_Name: %s, Request Type (extension): %s, Arrival time: %s\n",strtok(Statistics->handled,"\n"),Statistics->duration,Statistics->file_name,Statistics->request_type == 2 ? " .gz" : " .html",Statistics->arrival);
 
     shmdt(Statistics);
 
     fclose(fp);
-
+    sem_post(&mutex_stats);
 }
 
 void print_stats()
 {
     printf("\nNumber Compressed %d\n", number_compressed_files);
-    printf("\nNumber Static %d\n", number_static_pages);
+    printf("Number Static %d\n", number_static_pages);
 
     number_static_pages==0? printf("0 Static \n"):printf("Average_time_content %d miliseconds\n",average_time_content/number_static_pages);
     number_compressed_files==0? printf("0 Compressed \n"):printf("Average_time_compressed_content %d miliseconds\n",average_time_compressed_content/number_compressed_files);

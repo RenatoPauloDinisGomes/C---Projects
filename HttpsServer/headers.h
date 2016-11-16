@@ -96,10 +96,12 @@ Stats Statistics;
 Buffer buffer_of_requests;
 //array to save threads
 pthread_t *threads;
-pthread_t scheduler_thread,pipe_thread;
+pthread_t scheduler_thread, pipe_thread;
 //semaphoro for threads deprecated
 sem_t sem_threads;
+sem_t  mutex_stats;
 // variable of condition
+//pthread_mutex_t mutex_stats = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t handler_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex_buffer = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t full = PTHREAD_MUTEX_INITIALIZER;
