@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
-#include <cstdlib>
+
+  #include <sys/time.h>
+//#include <cstdlib>
 #define PIPE_NAME   "np_client_server"
 
 typedef struct
@@ -44,7 +46,7 @@ int main()
         flag=1;
         switch(option)
         {
-        case 0:
+            case 0:
             printf("Are you sure? (y/n) \n");
             if(get_char())
             {
@@ -57,7 +59,7 @@ int main()
                 flag--;
             }
             break;
-        case 1:
+            case 1:
             printf("To what Policy do you whant to change\n1 - First in First out\n2 - Scheduling priority static content\n3 - Scheduling priority compressed static content\n");
             getchar();
             cmd.cmd=1;
@@ -65,7 +67,7 @@ int main()
             (option_2<4 && option_2>0) ? cmd.policy=option_2 : flag--;
             flag ? printf(" ") : printf("Invalid policy\n");
             break;
-        case 2:
+            case 2:
             cmd.cmd=2;
             printf("what is the new Thread pool size?\n");
             getchar();
@@ -73,14 +75,14 @@ int main()
             (thread_size>0 && thread_size<=50) ?   cmd.thread_size=thread_size : flag--;
             flag ? printf(" ") : printf("Invalid size pool threads \n");
             break;
-        case 3:
+            case 3:
             cmd.cmd=3;
             printf("New allowed files? (ex. file_1.x;file_2.y;file_x.x)\n");
             getchar();
             fgets(cmd.str_1, sizeof(cmd.str_1), stdin);
             printf("files -> %s",cmd.str_1);
             break;
-        default:
+            default:
             printf("Invalid option\n");
             flag--;
         }

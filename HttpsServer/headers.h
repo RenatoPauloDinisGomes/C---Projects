@@ -16,7 +16,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
-#include <semaphore.h>
+#include <semaphore.h>   
+#include <sys/time.h>
+
 
 // Produce debug information
 #define DEBUG	  	1
@@ -53,7 +55,9 @@ typedef struct
 typedef struct stats* Stats;
 struct stats
 {
-  int request_type, duration;
+  int request_type;
+  double duration;
+
   char file_name[SIZE_BUF],handled[SIZE_BUF],arrival[SIZE_BUF];
 };
 
@@ -73,6 +77,7 @@ struct request
        int tm_yday;         day in the year, range 0 to 365
        int tm_isdst;        daylight saving time
     };*/
+    struct timeval tval_entry;
   int  attended, socket, port, id, type;
   char file_name[SIZE_BUF],ip_str[INET6_ADDRSTRLEN],buf_aux[SIZE_BUF],buf_temp[SIZE_BUF];
 };
@@ -99,7 +104,7 @@ pthread_t *threads;
 pthread_t scheduler_thread, pipe_thread;
 //semaphoro for threads deprecated
 sem_t sem_threads;
-sem_t  mutex_stats;
+sem_t mutex_stats;
 // variable of condition
 //pthread_mutex_t mutex_stats = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t handler_mutex = PTHREAD_MUTEX_INITIALIZER;
