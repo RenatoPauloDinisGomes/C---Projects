@@ -1,10 +1,17 @@
-
 //-------------------STATS FUNCTIONS---------------------------//
 int number_static_pages,
 number_compressed_files,
 num;
 double average_time_content,
 average_time_compressed_content;
+//MMF Stuff
+int id=0;
+
+struct stat sbuf;
+char *data;
+
+int offset=0;
+int PageSize=0;
 
 void create_shared_variable()
 {
@@ -13,29 +20,24 @@ void create_shared_variable()
 		perror("ERROR CREATING SHARED MEMORY FOR STATISTICS");
 		exit(1);
 	}
-	printf("shared_memory_id : %d\n", shared_memory_id);
+	printf("shared_memory_id : %d size %ld \n ", shared_memory_id,sizeof(struct stats));
 }
+
+
 void server_stats()
 {
-	FILE *fp;
-	time_t t_m;
-	fp = fopen(STATS_FILE_NAME,"a");
-
 	printf("Initialized server stats\n" );
-    //Statistics = (Stats)malloc(sizeof(struct stats));
 	number_static_pages=0;
 	number_compressed_files=0;
 	average_time_content=0;
 	average_time_compressed_content=0;
 	num=0;
 
-	signal(SIGINT, close_stats);
-	signal(SIGUSR1, run_stats);
-	signal(SIGUSR2, stats_reset);
+	signal(SIGTSTP ,run_stats);
 
-	time(&t_m);
-	fprintf(fp,"Start time %s\n", ctime(&t_m));
-	fclose(fp);
+	signal(SIGINT, close_stats);
+	signal(SIGUSR1, print_stats);
+	signal(SIGUSR2, stats_reset);
 
 	while(1){pause();}
 }
@@ -50,32 +52,28 @@ void stats_reset()
 }
 void close_stats()
 {
-	FILE *fp;
 	time_t t_m;
-	fp = fopen(STATS_FILE_NAME, "a");
-	if((Statistics = (Stats)shmat(shared_memory_id,NULL,0))==(Stats)-1)
-	{
-		perror("ERROR ATTACHING MEMORY");
-		exit(1);
-	}
 	time(&t_m);
-	fprintf(fp, "----/-----/-----/-----/-----\n");
-	fprintf(fp, "Close time %s", ctime(&t_m));
-	fprintf(fp, "Number Compressed %d\n", number_compressed_files);
-	fprintf(fp, "Number Static %d\n", number_static_pages);
-	fprintf(fp, "----/-----/-----/-----/-----\n\n");
-
 	print_stats();
 	printf("\nStatistics Close time %s\n", ctime(&t_m));
-	fclose(fp);
+	if (shmctl(shared_memory_id, IPC_RMID, NULL) < 0){
+		perror( "Error deleting memory : " );
+		exit(-1);	
+	}
 	exit(0);
 }
 
 void run_stats(){
 	sem_wait(&mutex_stats);
-	FILE *fp;
+	int fd;
+	char temp[SIZE_BUF];
+	offset=0;
+	PageSize=0;
+	if ((fd = open(STATS_FILE_NAME,O_RDWR | O_CREAT,0600)) < 0){
+		perror("Error opening file for writing");
+		exit(EXIT_FAILURE);
+	}
 
-	fp = fopen(STATS_FILE_NAME, "a");
 	if((Statistics = (Stats)shmat(shared_memory_id,NULL,0))==(Stats)-1)
 	{
 		perror("ERROR ATTACHING MEMORY");
@@ -99,15 +97,42 @@ void run_stats(){
 	printf("Duration %lf seconds\n", Statistics->duration);
 	printf("--------------------------------\n");
 
-	fprintf(fp, "Handled time: %s, Duration: %lf, File_Name: %s, Request Type (extension): %s, Arrival time: %s\n",strtok(Statistics->handled,"\n"),Statistics->duration,Statistics->file_name,Statistics->request_type == 2 ? " .gz" : " .html",Statistics->arrival);
+	PageSize= lseek(fd,0L,SEEK_END);
+	strtok(Statistics->handled,"\n");
+	sprintf(temp,"%d - Handled time: %s, Duration: %lf, File_Name: %s, Request Type (extension): %s, Arrival time: %s" ,id,Statistics->handled,Statistics->duration,Statistics->file_name,Statistics->request_type == 2 ? " .gz" : " .html",Statistics->arrival);
+	PageSize+=strlen(temp);
+
+	//PageSize+=sizeof(id)+sizeof(" - Handled time: , Duration: , File_Name: , Request Type (extension): , Arrival time: ")+strlen(strtok(Statistics->handled,"\n"))+sizeof(Statistics->duration)+strlen(Statistics->file_name)+strlen(Statistics->request_type == 2 ? " .gz" : " .html")+strlen(Statistics->arrival)-4;
+
+	lseek(fd, PageSize-1, SEEK_SET);
+	
+    // put something there
+	write(fd, " " , 1);
+	//printf("Mapping file\n");
+
+	if ((data = mmap(0,PageSize,PROT_READ | PROT_WRITE,MAP_SHARED,fd,0)) == MAP_FAILED){
+		perror("Error in mmap");
+		exit(EXIT_FAILURE);
+	}
+
+	offset += strlen(data);
+	id++;
+	sprintf(data + offset,"%d - Handled time: %s, Duration: %lf, File_Name: %s, Request Type (extension): %s, Arrival time: %s" ,id,Statistics->handled,Statistics->duration,Statistics->file_name,Statistics->request_type == 2 ? " .gz" : " .html",Statistics->arrival);
+
+	if(munmap(data,PageSize) < 0)
+	{
+		fprintf(stderr,"dst munmap error: %s\n",strerror(errno));
+		exit(1);
+	}
+
 	shmdt(Statistics);
-	fclose(fp);
+	close(fd);
 	sem_post(&mutex_stats);
 }
 
 void print_stats()
 {
-	printf("\nNumber Compressed %d\n", number_compressed_files);
+	printf("--------Statistics--------\nNumber Compressed %d\n", number_compressed_files);
 	printf("Number Static %d\n", number_static_pages);
 	number_static_pages==0? printf("0 Static \n"):printf("Average_time_content %lf seconds\n",average_time_content/number_static_pages);
 	number_compressed_files==0? printf("0 Compressed \n"):printf("Average_time_compressed_content %lf seconds\n",average_time_compressed_content/number_compressed_files);

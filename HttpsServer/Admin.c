@@ -7,9 +7,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/time.h>
 
-  #include <sys/time.h>
-//#include <cstdlib>
 #define PIPE_NAME   "np_client_server"
 
 typedef struct
@@ -20,13 +19,12 @@ typedef struct
 
 void print_menu();
 int get_char();
+
 int main()
 {
-
     command cmd;
     char files[1024];
     int option,flag,option_2,thread_size;
-
     // Opens the pipe for writing
     int fd;
     if ((fd=open(PIPE_NAME, O_WRONLY)) < 0)
@@ -39,7 +37,6 @@ int main()
         cmd.cmd=0;
         cmd.thread_size=51;
         cmd.policy=0;
-
         flag ? printf("\e[1;1H\e[2J") : printf(" ");
         print_menu();
         scanf("%d",&option);
@@ -48,13 +45,11 @@ int main()
         {
             case 0:
             printf("Are you sure? (y/n) \n");
-            if(get_char())
-            {
+            if(get_char()){
                 close(fd);
                 exit(0);
             }
-            else
-            {
+            else{
                 printf("Tass bem\n");
                 flag--;
             }

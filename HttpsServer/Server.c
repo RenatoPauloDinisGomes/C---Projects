@@ -1,4 +1,4 @@
-// ---- Base code ---- //
+//-------------------BASE CODE---------------------------//
 // Processes request from client
 void get_request(int index_in_buffer){
 	int i,j;
@@ -44,27 +44,22 @@ int read_line(int index_in_buffer,int n){
 	int socket = buffer_of_requests->list_requests[index_in_buffer].socket;
 	n_read=0;
 	not_eol=1;
-	while (n_read<n && not_eol)
-	{
+	while (n_read<n && not_eol){
 		ret = read(socket,&new_char,sizeof(char));
-		if (ret == -1)
-		{
+		if (ret == -1){
 			printf("Error reading from socket (read_line)");
 			return -1;
 		}
-		else if (ret == 0)
-		{
+		else if (ret == 0){
 			return 0;
 		}
-		else if (new_char=='\r')
-		{
+		else if (new_char=='\r'){
 			not_eol = 0;
             // consumes next byte on buffer (LF)
 			read(socket,&new_char,sizeof(char));
 			continue;
 		}
-		else
-		{
+		else{
 			buffer_of_requests->list_requests[index_in_buffer].buf_aux[n_read]=new_char;
 			n_read++;
 		}
